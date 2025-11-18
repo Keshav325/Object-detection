@@ -31,6 +31,8 @@ function App() {
       );
       setCurrentDeviceId(frontCamera ? frontCamera.deviceId : devices[0].deviceId);
     }
+    console.log("Detected devices:", devices);
+    console.log("Current device ID:", currentDeviceId);
   }, [devices, currentDeviceId]);
 
   // Main function
