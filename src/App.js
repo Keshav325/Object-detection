@@ -1,5 +1,5 @@
 // Import dependencies
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import * as tf from "@tensorflow/tfjs";
 import * as cocossd from "@tensorflow-models/coco-ssd";
 import Webcam from "react-webcam";
@@ -9,6 +9,29 @@ import { drawRect } from "./utilities";
 function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
+  const [devices, setDevices] = useState([]);
+  const [currentDeviceId, setCurrentDeviceId] = useState(null);
+
+  const handleDevices = useCallback(
+    (mediaDevices) => {
+      setDevices(mediaDevices.filter(({ kind }) => kind === "videoinput"));
+    },
+    [setDevices],
+  );
+
+  useEffect(() => {
+    navigator.mediaDevices.enumerateDevices().then(handleDevices);
+  }, [handleDevices]);
+
+  useEffect(() => {
+    if (devices.length > 0 && !currentDeviceId) {
+      const frontCamera = devices.find(device =>
+        device.label.toLowerCase().includes('front') ||
+        device.label.toLowerCase().includes('facing front')
+      );
+      setCurrentDeviceId(frontCamera ? frontCamera.deviceId : devices[0].deviceId);
+    }
+  }, [devices, currentDeviceId]);
 
   // Main function
   const runCoco = async () => {
@@ -51,12 +74,30 @@ function App() {
 
   useEffect(()=>{runCoco()},[]);
 
+  const videoConstraints = {
+      width: 640,
+      height: 480,
+      deviceId: currentDeviceId,
+  };
+
+  const switchCamera = () => {
+      const currentIndex = devices.findIndex(device => device.deviceId === currentDeviceId);
+      const nextIndex = (currentIndex + 1) % devices.length;
+      setCurrentDeviceId(devices[nextIndex].deviceId);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
+        {devices.length > 1 && (
+          <button onClick={switchCamera} className="camera-switch-button">
+            Switch Camera
+          </button>
+        )}
         <Webcam
           ref={webcamRef}
           muted={true} 
+          videoConstraints={videoConstraints}
           style={{
             position: "absolute",
             marginLeft: "auto",
@@ -65,8 +106,6 @@ function App() {
             right: 0,
             textAlign: "center",
             zindex: 9,
-            width: 640,
-            height: 480,
           }}
         />
 
@@ -80,8 +119,6 @@ function App() {
             right: 0,
             textAlign: "center",
             zindex: 8,
-            width: 640,
-            height: 480,
           }}
         />
       </header>

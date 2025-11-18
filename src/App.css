@@ -24,6 +24,36 @@
   color: white;
 }
 
+.App-header canvas,
+.App-header video {
+  max-width: 100%;
+  width: 640px; /* Default desktop width */
+  height: 480px; /* Default desktop height */
+  object-fit: contain; /* Maintain aspect ratio */
+  position: absolute; /* Keep absolute positioning for overlay */
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .App-header {
+    padding: 10px; /* Add some padding for smaller screens */
+  }
+
+  .App-header canvas,
+  .App-header video {
+    width: 90vw; /* Use viewport width for better scaling on mobile */
+    height: calc(0.75 * 90vw); /* Maintain 4:3 aspect ratio (480/640 = 0.75) */
+    position: relative; /* Change to relative for mobile to stack if needed, or adjust as per desired layout */
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
 .App-link {
   color: #61dafb;
 }
@@ -34,5 +64,27 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+.camera-switch-button {
+  /* Default styles for desktop - hidden */
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .camera-switch-button {
+    display: block; /* Show button on mobile */
+    position: absolute;
+    top: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    z-index: 10;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: none;
+    background-color: #61dafb;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
   }
 }
